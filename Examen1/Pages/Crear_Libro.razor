@@ -1,0 +1,129 @@
+﻿@page "/crear-Libro"
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<h3>Crear_libro</h3>
+
+<EditForm Model="@librosElectronicos" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="Titulo">Titulo del Libro</label>
+        <InputText id="Titulo" @bind-Value="librosElectronicos.Titulo" class="form-control" />
+        <ValidationMessage For="() => librosElectronicos.Titulo" />
+    </div>
+    <div class="form-group">
+        <label for="Autor">Autor del Libro</label>
+        <InputText id="Especie" @bind-Value="librosElectronicos.Autor" class="form-control" />
+        <ValidationMessage For="() => librosElectronicos.Autor" />
+    </div>
+    <div class="form-group">
+        <label for="Genero">Genero del libro</label>
+        <InputText id="Genero" @bind-Value="librosElectronicos.Genero" class="form-control" />
+        <ValidationMessage For="() => librosElectronicos.Genero" />
+    </div>
+    <div class="form-group">
+        <label for="Año">Año de Publicacion</label>
+        <InputNumber id="Año" @bind-Value="librosElectronicos.Anio" class="form-control" />
+
+    </div>
+    <div class="form-group">
+        <label for="Formato">formato libro </label>
+        <InputText id="Formato" @bind-Value="librosElectronicos.Formato" class="form-control" />
+        <ValidationMessage For="() => librosElectronicos.Formato" />
+    </div>
+    <div class="form-group">
+        <label for="Tamaño">Tamaño libro</label>
+        <InputNumber id="Tamaño" @bind-Value="librosElectronicos.tamano" class="form-control" />
+
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary" @onclick="Guardar">Guardar</button>
+    </div>
+
+</EditForm>
+<div>
+    @if (librosElectronicoss != null)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Autor</th>
+                    <th>Genero</th>
+                    <th>Año de Publicacion</th>
+                    <th>Formato</th>
+                    <th>Tamaño del Archivo</th>
+                    <th>Eliminar</th>
+                    <th>Editar</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var librosElectronicos in librosElectronicoss)
+                {
+                    <tr>
+                        <td>@librosElectronicos.Titulo</td>
+                        <td>@librosElectronicos.Autor</td>
+                        <td>@librosElectronicos.Genero</td>
+                        <td>@librosElectronicos.Anio</td>
+                        <td>@librosElectronicos.Formato</td>
+                        <td>@librosElectronicos.tamano</td>
+                        <td>
+                            <button class="btn btn-danger"
+                                    @onclick="@(() => Borrar(librosElectronicos.Formato))">
+                                Eliminar
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-warning"
+                                    @onclick="@(() => NavigationManager.NavigateTo($"/editar-ave/{librosElectronicos.Formato}"))">
+                                Editar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+
+</div>
+
+
+
+
+
+
+@code {
+    private LibrosElectronicos librosElectronicos = new LibrosElectronicos();
+    List<LibrosElectronicos> librosElectronicoss = new List<LibrosElectronicos>();
+
+    protected async Task Guardar()
+    {
+        //Ave aves = new Ave();
+        librosElectronicoss.Add(librosElectronicos);
+
+        await localStorage.SetItemAsync("librosElectronicoss", librosElectronicoss);
+    }
+    protected async Task Borrar(string Formatos)
+    {
+        librosElectronicoss.Remove(librosElectronicoss.First(c => c.Formato == Formatos));
+        await localStorage.SetItemAsync("librosElectronicoss", librosElectronicoss);
+
+    }
+    protected override async Task OnInitializedAsync()
+    {   //La primera vez que se corre poner en comentarios, pues como no existen datos
+        //convierta la lista catedraticos en null
+        librosElectronicoss = await localStorage.GetItemAsync<List<LibrosElectronicos>>("librosElectronicoss");
+
+        if (librosElectronicoss == null)
+        {
+            librosElectronicoss = new List<LibrosElectronicos>();
+        }
+    }
+}
+
